@@ -109,11 +109,24 @@ public class MemberJpaRepository {
                         teamNameEq(condition.getTeamName()),
                         ageGoeEq(condition.getAgeGoe()),
                         ageLoeEq(condition.getAgeLoe())
-                        )
+                )
                 .fetch();
     }
 
-    public List<MemberTeamDto> search2(String usernameCond, String teamNameCond, Integer ageGoeCond, Integer ageLoeCond) {
+    public List<Member> searchMember(MemberSearchCondition condition) {
+        return queryFactory
+                .selectFrom(member)
+                .leftJoin(member.team, team)
+                .where(
+                        usernameEq(condition.getUsername()),
+                        teamNameEq(condition.getTeamName()),
+                        ageGoeEq(condition.getAgeGoe()),
+                        ageLoeEq(condition.getAgeLoe())
+                )
+                .fetch();
+    }
+
+    public List<MemberTeamDto> search2(String username, String teamName, Integer ageGoe, Integer ageLoe) {
         return queryFactory
                 .select(new QMemberTeamDto(
                         member.id.as("memberId"),
@@ -123,27 +136,27 @@ public class MemberJpaRepository {
                         team.name.as("teamName")))
                 .from(member)
                 .leftJoin(member.team, team)
-                .where(allEq(usernameCond, teamNameCond, ageGoeCond, ageLoeCond))
+                .where(allEq(username, teamName, ageGoe, ageLoe))
                 .fetch();
     }
 
-    private BooleanExpression usernameEq(String usernameCond) {
-        return usernameCond != null ? member.username.eq(usernameCond) : null;
+    private BooleanExpression usernameEq(String username) {
+        return hasText(username) ? member.username.eq(username) : null;
     }
 
-    private BooleanExpression teamNameEq(String teamNameCond) {
-        return teamNameCond != null ? team.name.eq(teamNameCond) : null;
+    private BooleanExpression teamNameEq(String teamName) {
+        return hasText(teamName) ? team.name.eq(teamName) : null;
     }
 
-    private BooleanExpression ageGoeEq(Integer ageGoeCond) {
-        return ageGoeCond != null ? member.age.eq(ageGoeCond) : null;
+    private BooleanExpression ageGoeEq(Integer ageGoe) {
+        return ageGoe != null ? member.age.goe(ageGoe) : null;
     }
 
-    private BooleanExpression ageLoeEq(Integer ageLoeCond) {
-        return ageLoeCond != null ? member.age.eq(ageLoeCond) : null;
+    private BooleanExpression ageLoeEq(Integer ageLoe) {
+        return ageLoe != null ? member.age.loe(ageLoe) : null;
     }
 
-    private BooleanExpression allEq(String usernameCond, String teamNameCond, Integer ageGoeCond, Integer ageLoeCond) {
-        if (usernameCond)
+    private BooleanExpression allEq(String username, String teamName, Integer ageGoe, Integer ageLoe) {
+        return usernameEq(username).and(teamNameEq(teamName)).and(ageGoeEq(ageGoe)).and(ageLoeEq(ageLoe));
     }
 }
