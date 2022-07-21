@@ -81,7 +81,7 @@ public class MemberTestRepository extends Querydsl4RepositorySupport {
                     .where(
                         usernameEq(condition.getUsername()),
                         teamNameEq(condition.getTeamName()),
-                        ageGoeEq(condition.getAgeGoe()),
+                        ageGoeEq(condition.getAgeGoe()),    
                         ageLoeEq(condition.getAgeLoe()))
         );
     }
